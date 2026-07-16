@@ -1,9 +1,7 @@
 // testing.cpp
-import mathC:vec; 
-
+#include "linalg/vectors.hpp"
 #include <iostream>
 #include <cassert>
-
 int main() {
     std::cout << "--- INIZIO TEST AVANZATI ALGEBRA ---\n\n";
 

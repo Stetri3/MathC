@@ -1,1 +1,1 @@
-module mathC:calculus.dual;
+export module mathC:calculus_duals; // Nome del modulo primario + : + nome partizione

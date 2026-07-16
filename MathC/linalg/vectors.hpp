@@ -1,7 +1,5 @@
-module;
+#pragma once
 
-// --- GLOBAL MODULE FRAGMENT ---
-// Tutti gli header tradizionali DEVONO stare qui sopra.
 #include <cstdint>
 #include <array>
 #include <span>
@@ -14,25 +12,20 @@ module;
 #include <algorithm>
 #include "vec_utils.h"
 
-// --- INIZIO DEL MODULO ---
-export module mathC:vec;
-
-// ATTENZIONE! IL CODICE COMPILA E FUNZIONA, MAI CAMBIARLO
-
-// Le macro non superano i confini del modulo, quindi Ë sicuro definirle e undefinirle qui.
+// Le macro non escono da questo header grazie all'#undef finale
 #define C(x) static_cast<AsType>(x)
 
-// Dichiarazioni esportate
-export template <uint32_t dim, typename T>
+// Dichiarazioni forward
+template <uint32_t dim, typename T>
 struct Vec;
-export template <uint32_t Rows, uint32_t Cols, typename T>
+template <uint32_t Rows, uint32_t Cols, typename T>
 struct Mat;
-export template <uint32_t dim, typename T>
+template <uint32_t dim, typename T>
 struct MatQ;
 
-export namespace math::cond {
+namespace math::cond {
 
-    //Enum per la commutativit‡
+    //Enum per la commutativit√†
     enum class OpDir { Right, Left };
 
     //Condizionali constexpr 
@@ -94,7 +87,7 @@ export namespace math::cond {
     template <typename T>
     inline constexpr bool is_ringdiv_v = is_ringdiv<T>::value;
 
-    //Per campo (RingDiv + commutativit‡ per moltiplicazione) usiamo semplicemente tipo aritmetico
+    //Per campo (RingDiv + commutativit√† per moltiplicazione) usiamo semplicemente tipo aritmetico
     template <typename T>
     concept Field = std::is_arithmetic_v<T>;
     template <typename T>
@@ -102,9 +95,9 @@ export namespace math::cond {
     template <typename T>
     inline constexpr bool is_field_v = is_field<T>::value;
 
-    //Tipi un po' pi˘ "complicati"
-    //PRODOTTO CON IMMAGINE A SEMIGRUPPO: il prodotto Ë chiuso rispetto alla somma, ovvero esiste 
-    //un'operazione prodotto (ordinato T*U) la cui immagine Ë chiusa rispetto alla somma, T*U + T*U = T*U
+    //Tipi un po' pi√π "complicati"
+    //PRODOTTO CON IMMAGINE A SEMIGRUPPO: il prodotto √® chiuso rispetto alla somma, ovvero esiste 
+    //un'operazione prodotto (ordinato T*U) la cui immagine √® chiusa rispetto alla somma, T*U + T*U = T*U
     template <typename T, typename U>
     concept ProdImageSemigroup = requires(T t, U u) {
         { t* u };
@@ -114,7 +107,7 @@ export namespace math::cond {
     template <typename T, typename U>
     inline constexpr bool is_prodimagesemigroup_v = is_prodimagesemigroup<T, U>::value;
 
-    //SOMMA CON IMMAGINE A SEMIGRUPPO (la somma Ë chiusa rispetto al prodotto)
+    //SOMMA CON IMMAGINE A SEMIGRUPPO (la somma √® chiusa rispetto al prodotto)
     //Come sopra invertendo somma con prodotto
     template <typename T, typename U>
     concept SumImageSemigroup = requires(T t, U u) {
@@ -212,9 +205,9 @@ export namespace math::cond {
     >;
 }
 
-export namespace co = math::cond;
+namespace co = math::cond;
 
-export template <uint32_t dim = 3, typename T = float>
+template <uint32_t dim = 3, typename T = float>
 struct Vec {
     std::array<T, dim> raw;
 
@@ -368,7 +361,7 @@ struct Vec {
     }
 
     //OVERLOADING PER
-    
+
     // Overload Operatore * (Vettore * Vettore)
     template <typename U>
         requires (_depth == Vec<dim, U>::_depth&& co::ProdImageSemigroup<T, U>)
@@ -377,14 +370,14 @@ struct Vec {
     }
     //Overload * (Vettore * Scalare)
     template <typename U>
-        requires (!co::is_mat_v<U> && co::_depth_v<U> < _depth && requires(T t, U u) { t* u; })
+        requires (!co::is_mat_v<U>&& co::_depth_v<U> < _depth&& requires(T t, U u) { t* u; })
     constexpr auto operator*(const U& scalar) const {
         return this->Scalar(scalar);
     }
 
     //Overload * (Scalare * Vettore)
     template <typename U>
-        requires (!co::is_mat_v<U> && co::_depth_v<U> < _depth && requires(U u, T t) { u* t; })
+        requires (!co::is_mat_v<U>&& co::_depth_v<U> < _depth&& requires(U u, T t) { u* t; })
     friend constexpr auto operator*(const U& scalar, const Vec<dim, T>& vec) {
         return vec.ScalarLeft(scalar);
     }
@@ -411,7 +404,7 @@ struct Vec {
     constexpr auto norm() const requires co::Field<T> {
         using ScalarType = decltype((*this)* (*this));
         using FPUType = std::conditional_t<(sizeof(ScalarType) <= 4), float, double>;
-        return std::sqrt(static_cast<FPUType>((*this) * (*this)));
+        return std::sqrt(static_cast<FPUType>(this->VecProd(*this)));
     }
 
     constexpr auto normalized() const requires co::Field<T> {
@@ -471,7 +464,7 @@ struct Vec {
     }
 };
 
-export template <uint32_t Rows, uint32_t Cols, typename T>
+template <uint32_t Rows, uint32_t Cols, typename T>
 struct Mat {
     std::array<T, Rows* Cols> raw;
 
@@ -577,7 +570,7 @@ struct Mat {
 
     // Prodotto Matrice * Matrice
     template <uint32_t NewCols, typename U>
-        requires co::ProdImageSemigroup<T,U>
+        requires co::ProdImageSemigroup<T, U>
     constexpr auto Prod(const Mat<Cols, NewCols, U>& other) const {
         using ProductType = decltype(std::declval<T>()* std::declval<U>());
         Mat<Rows, NewCols, ProductType> result;
@@ -657,7 +650,7 @@ struct Mat {
 
     // Overload Matrice * Matrice
     template <uint32_t NewCols, typename U>
-        requires co::ProdImageSemigroup<T,U> //Ripetiamo anche se Ë ereditato da Prod(), male non fa
+        requires co::ProdImageSemigroup<T, U> //Ripetiamo anche se √® ereditato da Prod(), male non fa
     constexpr auto operator*(const Mat<Cols, NewCols, U>& other) const {
         return this->Prod(other);
     }
@@ -714,7 +707,7 @@ struct Mat {
     }
 };
 
-export template <uint32_t dim, typename T>
+template <uint32_t dim, typename T>
 struct MatQ : public Mat<dim, dim, T> {
 
     using Base = Mat<dim, dim, T>;
@@ -853,23 +846,21 @@ struct MatQ : public Mat<dim, dim, T> {
     }
 };
 
-export {
-    using Vec3f = Vec<3, float>;
-    using Vec4f = Vec<4, float>;
-    using Vec3u = Vec<3, uint32_t>;
-    using Vec4u = Vec<4, uint32_t>;
-    using Vec3i = Vec<3, int32_t>;
-    using Vec4i = Vec<4, int32_t>;
-    using Vec3u16 = Vec<3, uint16_t>;
-    using Vec4u16 = Vec<4, uint16_t>;
-    using Vec3i16 = Vec<3, int16_t>;
-    using Vec4i16 = Vec<4, int16_t>;
-    using Mat4f = MatQ<4, float>;
-    using Mat3f = MatQ<3, float>;
-    using Mat4i = MatQ<4, int32_t>;
-    using Mat3i = MatQ<3, int32_t>;
-    using Mat4u = MatQ<4, uint32_t>;
-    using Mat3u = MatQ<3, int32_t>;
-}
+using Vec3f = Vec<3, float>;
+using Vec4f = Vec<4, float>;
+using Vec3u = Vec<3, uint32_t>;
+using Vec4u = Vec<4, uint32_t>;
+using Vec3i = Vec<3, int32_t>;
+using Vec4i = Vec<4, int32_t>;
+using Vec3u16 = Vec<3, uint16_t>;
+using Vec4u16 = Vec<4, uint16_t>;
+using Vec3i16 = Vec<3, int16_t>;
+using Vec4i16 = Vec<4, int16_t>;
+using Mat4f = MatQ<4, float>;
+using Mat3f = MatQ<3, float>;
+using Mat4i = MatQ<4, int32_t>;
+using Mat3i = MatQ<3, int32_t>;
+using Mat4u = MatQ<4, uint32_t>;
+using Mat3u = MatQ<3, int32_t>;
 
 #undef C
