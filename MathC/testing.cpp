@@ -1,5 +1,6 @@
 // testing.cpp
 #include "linalg/vectors.hpp"
+#include "calculus//duals.hpp"
 #include <iostream>
 #include <cassert>
 int main() {
@@ -99,5 +100,15 @@ int main() {
     std::cout << "  -> Concept di protezione multilivello funzionanti.\n";
 
     std::cout << "\n--- TUTTI I TEST PASSATI CON SUCCESSO ---\n";
+
+    Dual<float> r(3.0f, 2.0f);
+    Dual<float> d(3.0f, 4.0f);
+    Dual<float> e = r + d;
+    std::cout << e.real << ", " << e.dual << "\n";
+
+    Dual<Dual<float>> nest(r, d);
+    Dual<Dual<float>> result = nest * d;
+    std::cout << result.real.real << ", " << result.real.dual 
+        << "; " << result.dual.real << result.dual.dual << "\n";
     return 0;
 }

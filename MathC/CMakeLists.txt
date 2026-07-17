@@ -5,4 +5,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(${APP_NAME} "testing.cpp"
 "linalg/vectors.hpp" "linalg/vector_lists.h"
-"linalg/vec_utils.h")
+"linalg/vec_utils.h" "calculus/duals.hpp"
+"linalg/vector_cond.hpp")
