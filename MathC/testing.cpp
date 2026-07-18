@@ -3,6 +3,7 @@
 #include "calculus//duals.hpp"
 #include <iostream>
 #include <cassert>
+#include "func/funcs.hpp"
 int main() {
     std::cout << "--- INIZIO TEST AVANZATI ALGEBRA ---\n\n";
 
