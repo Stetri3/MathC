@@ -31,6 +31,11 @@ namespace math::cond {
 
     //Condizionali constexpr 
 
+    //PROPRIETà DELLE OPERAZIONI
+    //TODO
+    
+    //STRUTTURE ALGEBRICHE
+
     //Semigruppo (chiuso rispetto alla somma)
     template <typename T>
     concept Semigroup = requires(T a, T b) {

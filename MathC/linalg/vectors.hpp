@@ -574,6 +574,8 @@ struct MatQ : public Mat<dim, dim, T> {
         return raw[0];
     }
 
+
+    //CALCOLO DETERMINANTI
     constexpr T det() const noexcept
         requires (dim == 2) && co::Ring<T> {
         return raw[0] * raw[3] - raw[1] * raw[2];
@@ -607,6 +609,7 @@ struct MatQ : public Mat<dim, dim, T> {
         return s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0;
     }
 
+    //Calcolo determinanti cambiando il tipo elementi (utile contro overflow/precisione)
     template <typename AsType>
         requires (dim == 2) && co::Field<AsType>&& std::is_convertible_v<T, AsType>
     constexpr AsType det() const {
@@ -657,6 +660,8 @@ struct MatQ : public Mat<dim, dim, T> {
 
         return s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0;
     }
+
+
 };
 
 using Vec3f = Vec<3, float>;

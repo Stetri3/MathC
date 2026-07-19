@@ -1,16 +1,9 @@
 #pragma once
 
-template <typename TDerived>
+template <typename TDerived, typename Domain>
 struct Func;
 
-namespace funcs {
-    // Forward declarations dei nodi base
-    struct Variable;
-
-    template <auto Value>
-    struct Constant;
-
-
-    
-    
-}
+template <auto Val>
+struct Constant;
+template <typename domain>
+struct Variable;

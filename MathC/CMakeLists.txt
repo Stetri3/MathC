@@ -10,6 +10,6 @@ add_executable(${APP_NAME} "testing.cpp"
 "func/funcs.hpp" "func/funcs_decl.h"
 "utils/main_utils.hpp" "utils/type_utils.hpp"
 "func/op_def.h" "func/runtime/f.hpp"
-"func/op.hpp")
+"func/op.hpp" "calculus/field_funcs.hpp")
 
 target_precompile_headers(${APP_NAME} PRIVATE "utils/main_utils.hpp")

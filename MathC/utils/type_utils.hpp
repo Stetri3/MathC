@@ -7,4 +7,8 @@ namespace ut::type {
     struct Type {
         using type = T;
     };
+
+    //Concept (usando macro) per verificare che un tipo abbia un certo metodo
+#define HAS_METHOD(Type, MethodCall) \
+    requires(Type t) { t.MethodCall; }
 }

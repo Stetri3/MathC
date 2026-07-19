@@ -1,9 +1,10 @@
 // testing.cpp
 #include "linalg/vectors.hpp"
-#include "calculus//duals.hpp"
+#include "calculus/duals.hpp"
 #include <iostream>
 #include <cassert>
-#include "func/funcs.hpp"
+#include "calculus/field_funcs.hpp"
+
 int main() {
     std::cout << "--- INIZIO TEST AVANZATI ALGEBRA ---\n\n";
 
